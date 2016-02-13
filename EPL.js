@@ -19,7 +19,7 @@ function main() {
     var analyses = []
     analyses[0] = multipleLinearRegression(dataXandY.Xmatrix,dataXandY.Ymatrix[0])
     analyses[1] = multipleLinearRegression(dataXandY.Xmatrix,dataXandY.Ymatrix[1])
-//    console.log(analyses)
+    console.log(analyses)
 /*        
     var hometeam = 11
     var awayteam = 19
@@ -187,6 +187,7 @@ function getMatrixXandY(gamesInfo, teamsInfo, Xneeded,Yneeded) {
         for (var j=0; j<awayteamNeededN; j++) {
             gameres.push(teamsInfo[awayteam][Xneeded["awayteamData"][j]])
         }
+        gameres.push(1)
         Xres.push(gameres)
 
         for (var j=0; j<YneededN; j++) {
@@ -208,6 +209,7 @@ function givePredict(constArrays, Xneeded, teamsInfo, hometeam, awayteam, teams,
     for (var j=0; j<awayteamNeededN; j++) {
         Xarray.push(teamsInfo[awayteam][Xneeded["awayteamData"][j]])
     }
+    Xarray.push(1)
     var homeGoalsPredict = parseInt(numeric.dot(constArrays[0],Xarray)*100)/100
     var awayGoalsPredict = parseInt(numeric.dot(constArrays[1],Xarray)*100)/100
     var diff = parseInt((homeGoalsPredict - awayGoalsPredict)*100)/100
