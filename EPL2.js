@@ -67,7 +67,8 @@ function parseOneGame(gameSample) {
 
     var homeGoals = scores.homeGoals
     var awayGoals = scores.awayGoals
-    res = {
+    if (homeGoals>=0) {
+    var res = {
         "homeTeam": teams.homeTeam,
         "awayTeam": teams.awayTeam,
         "homeGoals":homeGoals,
@@ -80,6 +81,13 @@ function parseOneGame(gameSample) {
         "isTie": homeGoals==awayGoals,
         "isAwayWin": homeGoals<awayGoals
     }
+} else {
+	res = {
+		"homeTeam": teams.homeTeam,
+        "awayTeam": teams.awayTeam,
+        "isPlayed": false,
+	}
+}
     console.log(res)
     return res
 }
@@ -114,6 +122,23 @@ function findOneGameTeams(sample) {
     }
     return res
 }
+
+function leagueData() {
+	var teamArray = []
+	var gameArray = []
+	for (var i = 0; i < 20; i++) {
+		var teamInfo = {
+			id: i,
+			teamShortName: teamShortNameList[i],
+			teamLongName: teamLongNmaeList[i],
+			homeGames: [],
+			awayGames: []
+		}
+		teamArray.push(teamInfo)
+		
+	}
+}
+
 
 
 
