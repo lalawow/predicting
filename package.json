@@ -8,6 +8,8 @@
   "dependencies": {
     "async": "~0.2.8",
     "express": "~3.2.4",
+    "numeric": "~1.2.6",
+    "simple-statistics": "^1.0.1",
     "socket.io": "~0.9.14"
   }
 }
