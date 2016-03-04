@@ -2,11 +2,35 @@
 var ss = require("simple-statistics")
 var numeric = require("numeric")
 
-main()
-
+main() 
 
 function main() {
-    var predictMatchday = 27
+    predict(27)
+}
+
+function testPredict(predictMatchday) {
+    var data = new getGameData()
+    setTimeout(function() {
+        var dataMatrix = parseGameData(data.getData())
+//        console.log(dataMatrix.teams[0].homeGames[2])
+//        console.log(dataMatrix.games[0][19])
+        console.log("Predicting Matchday "+predictMatchday)
+        var teamGoalsStat = teamGoalsInfo(dataMatrix, predictMatchday)
+        var playedGames = getAllPlayedGames(dataMatrix.games,predictMatchday)
+        var XinfoNeeded = {"hometeamData":["goalsAvg","goalsAllowedAvg","homeGameGoalsAvg","homeGameGoalsAllowedAvg","goalsStd","goalsAllowedStd","homeGameGoalsStd","homeGameGoalsAllowedStd"],
+                      "awayteamData":["goalsAvg","goalsAllowedAvg","awayGameGoalsAvg","awayGameGoalsAllowedAvg","goalsStd","goalsAllowedStd","awayGameGoalsStd","awayGameGoalsAllowedStd"]}
+        var YinfoNeeded = ["homeGoals","awayGoals"]
+        var dataXandY = getMatrixXandY(playedGames,teamGoalsStat,XinfoNeeded,YinfoNeeded)
+        var analyses = []
+        analyses[0] = multipleLinearRegression(dataXandY.Xmatrix,dataXandY.Ymatrix[0])
+        analyses[1] = multipleLinearRegression(dataXandY.Xmatrix,dataXandY.Ymatrix[1])
+        
+        testMatchdayPredict(analyses, XinfoNeeded, teamGoalsStat, predictMatchday, dataMatrix.teams)
+        console.log(analyses)
+    }, 15)
+}
+
+function predict(predictMatchday) {
     var data = new getGameData()
     setTimeout(function() {
         var dataMatrix = parseGameData(data.getData())
@@ -286,6 +310,39 @@ function getTeams(matchday, games) {
 }
 
 function givePredict(constArrays, Xneeded, teamsInfo, hometeam, awayteam, gameNumber) {
+    var hometeamNeededN = Xneeded["hometeamData"].length
+    var awayteamNeededN = Xneeded["awayteamData"].length
+    var Xarray = [1]
+    for (var j=0; j<hometeamNeededN; j++) {
+        Xarray.push(teamsInfo[hometeam][Xneeded["hometeamData"][j]])
+    }
+    for (var j=0; j<awayteamNeededN; j++) {
+        Xarray.push(teamsInfo[awayteam][Xneeded["awayteamData"][j]])
+    }
+    var homeGoalsPredict = parseInt(numeric.dot(constArrays[0],Xarray)*100)/100
+    var awayGoalsPredict = parseInt(numeric.dot(constArrays[1],Xarray)*100)/100
+    var diff = parseInt((homeGoalsPredict - awayGoalsPredict)*100)/100
+    if (diff>0.5) {
+        console.log("Game "+(gameNumber+1)+": "+teamShortNameList[hometeam]+" - "+teamShortNameList[awayteam]+", "+teamShortNameList[hometeam]+" will win. diff: "+diff)
+    } else if (diff<-0.5) {
+        console.log("Game "+(gameNumber+1)+": "+teamShortNameList[hometeam]+" - "+teamShortNameList[awayteam]+", "+teamShortNameList[awayteam]+" will win. diff: "+diff)
+    } else {
+        console.log("Game "+(gameNumber+1)+": "+teamShortNameList[hometeam]+" - "+teamShortNameList[awayteam]+", "+"it could be tie. diff: "+diff)
+    }
+    console.log("Hometeam: "+teamShortNameList[hometeam]+" will have goals: "+homeGoalsPredict, "Awayteam: "+teamShortNameList[awayteam]+" will have goals: "+awayGoalsPredict)
+    console.log("\n")
+}
+
+function testMatchdayPredict(analyses, XinfoNeeded, teamGoalsStat, matchday, gameTeams) {
+    var matchTeams = getTeams(matchday, gameTeams)
+//    console.log(matchTeams)
+    console.log()
+    for (var i=0; i<teamNumber/2; i++) {
+        testPredict(analyses, XinfoNeeded, teamGoalsStat, matchTeams.homeTeams[i], matchTeams.awayTeams[i], i)
+    }
+}
+
+function testPredict(constArrays, Xneeded, teamsInfo, hometeam, awayteam, gameNumber) {
     var hometeamNeededN = Xneeded["hometeamData"].length
     var awayteamNeededN = Xneeded["awayteamData"].length
     var Xarray = [1]
